@@ -1,0 +1,308 @@
+{
+  "criteria": [
+    [
+      "Kết quả/KPI",
+      25,
+      "Hoàn thành chỉ tiêu, đúng hạn, có tác động rõ đến mục tiêu phòng ban."
+    ],
+    [
+      "Chuyên môn",
+      20,
+      "Nắm nghiệp vụ, xử lý đúng chuẩn, hạn chế lỗi lặp lại."
+    ],
+    [
+      "Ownership",
+      20,
+      "Chủ động nhận trách nhiệm, theo việc đến cùng, không đổ lỗi."
+    ],
+    [
+      "Phối hợp",
+      15,
+      "Làm việc liên phòng ban, phản hồi rõ, hỗ trợ team."
+    ],
+    [
+      "Cải tiến",
+      10,
+      "Có đề xuất giúp tăng hiệu quả, giảm lỗi, tiết kiệm chi phí/thời gian."
+    ],
+    [
+      "Văn hoá/kỷ luật",
+      10,
+      "Tuân thủ quy định, thái độ tích cực, phù hợp văn hoá công ty."
+    ]
+  ],
+  "levels": [
+    {
+      "code": "L0",
+      "title": "TTS/Thử việc",
+      "scope": "Học việc · làm theo hướng dẫn",
+      "salary": "Theo offer/thử việc",
+      "req": [
+        "Có nền tảng phù hợp vị trí ứng tuyển",
+        "Ham học hỏi, phản hồi nhanh, kỷ luật tốt",
+        "Hoàn thành bài test/đầu việc được giao"
+      ],
+      "resp": [
+        "Thực hiện task cơ bản theo checklist",
+        "Báo cáo tiến độ hằng ngày/tuần",
+        "Ghi nhận lỗi và cải thiện theo feedback"
+      ],
+      "auth": [
+        "Được truy cập tài liệu/hệ thống cần thiết",
+        "Được đề xuất ý tưởng trong phạm vi task"
+      ],
+      "benefit": [
+        "Lương/thù lao thử việc theo thoả thuận",
+        "Đào tạo nghiệp vụ và quy trình",
+        "Cơ hội lên Nhân viên chính thức"
+      ]
+    },
+    {
+      "code": "L1",
+      "title": "Nhân viên",
+      "scope": "Thực thi độc lập các task thường xuyên",
+      "salary": "Band L1 · theo năng lực",
+      "req": [
+        "Hiểu quy trình phòng ban",
+        "Tự hoàn thành task được giao với chất lượng ổn định",
+        "KPI đạt tối thiểu 80% trong kỳ review"
+      ],
+      "resp": [
+        "Thực hiện công việc theo JD/KPI",
+        "Phối hợp đúng deadline",
+        "Chủ động báo rủi ro và cập nhật tiến độ"
+      ],
+      "auth": [
+        "Được đề xuất cải tiến trong phạm vi công việc",
+        "Được tham gia họp chuyên môn khi liên quan"
+      ],
+      "benefit": [
+        "Lương chính thức + phụ cấp nếu có",
+        "Thưởng KPI/thưởng dự án theo chính sách",
+        "Lộ trình xét Chuyên viên sau kỳ review"
+      ]
+    },
+    {
+      "code": "L2",
+      "title": "Chuyên viên",
+      "scope": "Tự chủ mảng việc · đề xuất giải pháp",
+      "salary": "Band L2 · +10–25% khi lên level",
+      "req": [
+        "Có chuyên môn vững trong mảng phụ trách",
+        "Tự xử lý phần lớn vấn đề phát sinh",
+        "Có ít nhất 1–2 đề xuất cải tiến/chiến dịch/task tạo kết quả"
+      ],
+      "resp": [
+        "Ownership một mảng việc rõ ràng",
+        "Lên kế hoạch, triển khai, đo lường kết quả",
+        "Hỗ trợ đào tạo/hướng dẫn nhân sự mới"
+      ],
+      "auth": [
+        "Được đề xuất ngân sách/công cụ trong phạm vi mảng việc",
+        "Được đại diện team trao đổi với phòng ban liên quan"
+      ],
+      "benefit": [
+        "Lương theo band Chuyên viên",
+        "Thưởng KPI/campaign/dự án",
+        "Ưu tiên đào tạo nâng cao và cơ hội lên Trưởng nhóm"
+      ]
+    },
+    {
+      "code": "L3",
+      "title": "Trưởng nhóm",
+      "scope": "Dẫn dắt nhóm nhỏ · chịu KPI nhóm",
+      "salary": "Band L3 · theo quy mô team/KPI",
+      "req": [
+        "Có năng lực chuyên môn tốt và tư duy quản lý",
+        "Biết phân công, kiểm soát chất lượng, coaching",
+        "Đảm bảo kết quả nhóm ổn định"
+      ],
+      "resp": [
+        "Lập kế hoạch nhóm theo mục tiêu phòng ban",
+        "Phân việc, kiểm tra, phản hồi và đào tạo nhân sự",
+        "Báo cáo tiến độ/rủi ro/nguồn lực cho trưởng phòng"
+      ],
+      "auth": [
+        "Đề xuất phân bổ nhân sự trong nhóm",
+        "Đánh giá hiệu suất thành viên",
+        "Đề xuất thưởng/phạt/tăng level cho nhân sự phụ trách"
+      ],
+      "benefit": [
+        "Lương quản lý nhóm + phụ cấp trách nhiệm nếu có",
+        "Thưởng theo KPI nhóm",
+        "Cơ hội lên Phó/Trưởng phòng khi đủ scope"
+      ]
+    },
+    {
+      "code": "L4",
+      "title": "Trưởng phòng",
+      "scope": "Quản trị phòng ban · chịu mục tiêu kinh doanh/vận hành",
+      "salary": "Band L4 · theo ngân sách & mục tiêu",
+      "req": [
+        "Có năng lực chiến lược, quản trị và ra quyết định",
+        "Quản lý ngân sách, nhân sự, chất lượng đầu ra",
+        "Phối hợp tốt với BLĐ và các phòng ban"
+      ],
+      "resp": [
+        "Xây dựng kế hoạch tháng/quý/năm của phòng ban",
+        "Quản trị KPI, ngân sách, quy trình và nhân sự",
+        "Báo cáo kết quả, rủi ro, phương án cải tiến cho BGĐ"
+      ],
+      "auth": [
+        "Đề xuất cơ cấu, tuyển dụng, ngân sách",
+        "Phê duyệt kế hoạch trong phạm vi được giao",
+        "Đề xuất chính sách và thay đổi quy trình"
+      ],
+      "benefit": [
+        "Lương quản lý cấp phòng",
+        "Thưởng theo mục tiêu phòng ban/công ty",
+        "Tham gia hoạch định chiến lược và chính sách"
+      ]
+    }
+  ],
+  "departments": [
+    {
+      "id": "product",
+      "name": "Học thuật / Ôn thi",
+      "icon": "🧩",
+      "focus": "Xây chương trình học, testbank, học liệu, chuẩn đầu ra, chất lượng chuyên môn.",
+      "extra": [
+        "Nắm chương trình tiếng Anh, cấu trúc đề thi, chuẩn đầu ra",
+        "Biên soạn/kiểm định học liệu chính xác, phù hợp level",
+        "Quản lý chất lượng dữ liệu CMS, lesson, testbank"
+      ],
+      "roles": {
+        "L0": "TTS / Thử việc",
+        "L1": "Nhân viên Học thuật",
+        "L2": "Chuyên viên Học thuật",
+        "L3": "Trưởng nhóm Học thuật",
+        "L4": "Trưởng phòng Học thuật"
+      }
+    },
+    {
+      "id": "academic",
+      "name": "Học thuật / Giao tiếp",
+      "icon": "📚",
+      "focus": "Xây chương trình học, testbank, học liệu, chuẩn đầu ra, chất lượng chuyên môn.",
+      "extra": [
+        "Nắm chương trình tiếng Anh, cấu trúc đề thi, chuẩn đầu ra",
+        "Biên soạn/kiểm định học liệu chính xác, phù hợp level",
+        "Quản lý chất lượng dữ liệu CMS, lesson, testbank"
+      ],
+      "roles": {
+        "L0": "TTS / Thử việc",
+        "L1": "Nhân viên Học thuật",
+        "L2": "Chuyên viên Học thuật",
+        "L3": "Trưởng nhóm Học thuật",
+        "L4": "Trưởng phòng Học thuật"
+      }
+    },
+    {
+      "id": "tech",
+      "name": "Công nghệ / IT",
+      "icon": "💻",
+      "focus": "Phát triển app/web, AI integration, CMS, vận hành kỹ thuật và chất lượng hệ thống.",
+      "extra": [
+        "Code/test theo chuẩn, giảm lỗi production",
+        "Hiểu product requirement và phối hợp release",
+        "Bảo mật dữ liệu, hiệu năng, uptime, monitoring"
+      ],
+      "roles": {
+        "L0": "TTS / Thử việc",
+        "L1": "Nhân viên Lập trình",
+        "L2": "Chuyên viên Lập trình",
+        "L3": "Trưởng nhóm Công nghệ",
+        "L4": "Trưởng phòng Công nghệ"
+      }
+    },
+    {
+      "id": "marketing",
+      "name": "Truyền thông - Marketing",
+      "icon": "📣",
+      "focus": "Brand, content, social, performance, campaign, KOL/KOC, truyền thông sản phẩm.",
+      "extra": [
+        "Biết insight PHHS/học sinh và thông điệp sản phẩm",
+        "Đo lường reach, lead, CAC, CVR, hiệu quả kênh"
+      ],
+      "roles": {
+        "L0": "TTS / Thử việc",
+        "L1": "Nhân viên Marketing",
+        "L2": "Chuyên viên Marketing",
+        "L3": "Trưởng nhóm Marketing",
+        "L4": "Trưởng phòng Marketing"
+      }
+    },
+    {
+      "id": "business",
+      "name": "Kinh doanh / Sales",
+      "icon": "🤝",
+      "focus": "Tư vấn, chuyển đổi khách hàng, phát triển doanh thu, đối tác, trường học/đại lý.\nOnboarding, hỗ trợ phụ huynh/học sinh, giữ chân, xử lý khiếu nại, tăng active user.",
+      "extra": [
+        "Hiểu sản phẩm, gói học, chính sách giá và ưu đãi",
+        "Quản lý pipeline, follow-up, tỷ lệ chốt, doanh thu",
+        "Kỹ năng tư vấn đúng nhu cầu, không bán sai cam kết"
+      ],
+      "roles": {
+        "L0": "TTS Sales/Tele",
+        "L1": "Nhân viên Sales",
+        "L2": "Chuyên viên Kinh doanh",
+        "L3": "Trưởng nhóm Sales",
+        "L4": "Trưởng phòng Kinh doanh"
+      }
+    },
+    {
+      "id": "hrfa",
+      "name": "Nhân sự - Hành chính - Kế toán",
+      "icon": "🏢",
+      "focus": "Tuyển dụng, chấm công - lương, chính sách, văn hoá, hành chính, ngân sách và kiểm soát chi phí.",
+      "extra": [
+        "Đảm bảo hồ sơ, chính sách, lương thưởng chính xác",
+        "Hỗ trợ tuyển dụng, onboarding, đánh giá, văn hoá nội bộ",
+        "Kiểm soát chi phí, quy trình phê duyệt, rủi ro nhân sự"
+      ],
+      "roles": {
+        "L0": "TTS / Thử việc",
+        "L1": "Nhân viên Kế toán - HCNS",
+        "L2": "Chuyên viên Kế toán - HCNS",
+        "L3": "Trưởng nhóm Kế toán / HCNS",
+        "L4": "Trưởng phòng Kế toán - Hành chính - Nhân sự"
+      }
+    },
+    {
+      "id": "dept_c6csq1",
+      "name": "new",
+      "icon": "🌿",
+      "focus": "",
+      "extra": [],
+      "roles": {
+        "L0": "TTS/Thử việc - ",
+        "L1": "Nhân viên - ",
+        "L2": "Chuyên viên - ",
+        "L3": "Trưởng nhóm - ",
+        "L4": "Trưởng phòng - "
+      }
+    }
+  ],
+  "process": [
+    {
+      "title": "Đề xuất",
+      "desc": "Quản lý trực tiếp lập phiếu đề xuất kèm minh chứng KPI/năng lực."
+    },
+    {
+      "title": "HR kiểm tra",
+      "desc": "Đối chiếu thời gian, kỷ luật, salary band và hồ sơ đánh giá."
+    },
+    {
+      "title": "Hội đồng review",
+      "desc": "QL + HR + BGĐ đánh giá theo tiêu chí 100 điểm."
+    },
+    {
+      "title": "Phê duyệt",
+      "desc": "Chốt level, chức danh, lương/phụ cấp, ngày hiệu lực."
+    },
+    {
+      "title": "Theo dõi",
+      "desc": "Review sau 2–3 tháng để đảm bảo nhân sự vận hành đúng level mới."
+    }
+  ]
+}
