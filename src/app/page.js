@@ -1,49 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { getDb } from '@/lib/firebase';
+import { doc, getDoc, getDocs, collection, writeBatch } from 'firebase/firestore';
 
 function linesToArray(s) { return String(s || '').split('\n').map(x => x.trim()).filter(Boolean); }
 function arrayToLines(a) { return (a || []).join('\n'); }
 function uid(prefix) { return prefix + '_' + Math.random().toString(36).slice(2, 8); }
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
 
-const DEFAULT_PROCESS = [
-  { title: "Đề xuất", desc: "Quản lý trực tiếp lập phiếu đề xuất kèm minh chứng KPI/năng lực." },
-  { title: "HR kiểm tra", desc: "Đối chiếu thời gian, kỷ luật, salary band và hồ sơ đánh giá." },
-  { title: "Hội đồng review", desc: "QL + HR + BGĐ đánh giá theo tiêu chí 100 điểm." },
-  { title: "Phê duyệt", desc: "Chốt level, chức danh, lương/phụ cấp, ngày hiệu lực." },
-  { title: "Theo dõi", desc: "Review sau 2–3 tháng để đảm bảo nhân sự vận hành đúng level mới." }
-];
-
-const DEFAULT_MATRIX = [
-  {
-    title: "Điều kiện tối thiểu",
-    items: [
-      "Không vi phạm kỷ luật trong kỳ gần nhất.",
-      "KPI trung bình đạt từ 80% trở lên.",
-      "Được quản lý trực tiếp đề xuất.",
-      "Có minh chứng kết quả công việc rõ ràng."
-    ]
-  },
-  {
-    title: "Nguyên tắc tăng level",
-    items: [
-      "Level phản ánh scope và năng lực thực tế.",
-      "Không tự động tăng theo thâm niên.",
-      "Tăng level phải đi kèm tăng trách nhiệm.",
-      "Ưu tiên người tạo ảnh hưởng tích cực tới team."
-    ]
-  },
-  {
-    title: "Khung lương thưởng",
-    items: [
-      "Tăng hiệu suất: 5–10%.",
-      "Tăng level: 10–25%.",
-      "Nhân sự key: theo phê duyệt BGĐ.",
-      "Thưởng theo KPI/campaign/dự án nếu có."
-    ]
-  }
-];
 
 export default function CareerLadderApp() {
   const [data, setData] = useState(null);
@@ -53,15 +18,57 @@ export default function CareerLadderApp() {
   const [levelFilter, setLevelFilter] = useState('all');
   const [toastMsg, setToastMsg] = useState('');
   const [expandedRoles, setExpandedRoles] = useState({});
-  const fileInputRef = useRef(null);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isCheckingLogin, setIsCheckingLogin] = useState(true);
+  const [loginUser, setLoginUser] = useState('');
+  const [loginPass, setLoginPass] = useState('');
+  const [loginError, setLoginError] = useState('');
 
   const [modal, setModal] = useState({ isOpen: false, type: '', payload: null });
 
   useEffect(() => {
-    fetch('/api/data').then(r => r.json()).then(d => {
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+      setIsLoggedIn(true);
+    }
+    setIsCheckingLogin(false);
+  }, []);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (loginUser === process.env.NEXT_PUBLIC_LOGIN_USER && loginPass === process.env.NEXT_PUBLIC_LOGIN_PASS) {
+      setIsLoggedIn(true);
+      sessionStorage.setItem('isLoggedIn', 'true');
+      setLoginError('');
+    } else {
+      setLoginError('Sai tài khoản hoặc mật khẩu');
+    }
+  };
+
+  useEffect(() => {
+    async function loadFromFirestore() {
+      const db = getDb();
+      const [criteriaSnap, levelsSnap, deptsSnap, processSnap, matrixSnap] = await Promise.all([
+        getDoc(doc(db, 'criteria', 'main')),
+        getDocs(collection(db, 'levels')),
+        getDocs(collection(db, 'departments')),
+        getDoc(doc(db, 'process', 'main')),
+        getDoc(doc(db, 'matrix', 'main')),
+      ]);
+      const d = {
+        // Firestore lưu criteria dướng object {name, points, desc}, UI dùng array [name, points, desc]
+        criteria: criteriaSnap.exists()
+          ? criteriaSnap.data().items.map(c => [c.name, c.points, c.desc])
+          : [],
+        levels: levelsSnap.docs.map(s => s.data()).sort((a, b) => a.code.localeCompare(b.code)),
+        departments: deptsSnap.docs.map(s => s.data()).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+        process: processSnap.exists() ? processSnap.data().steps : [],
+        matrix: matrixSnap.exists() ? matrixSnap.data().items : [],
+      };
       setData(d);
       if (d.departments?.[0]) setActiveDept(d.departments[0].id);
-    });
+    }
+    loadFromFirestore();
   }, []);
 
   useEffect(() => {
@@ -70,16 +77,43 @@ export default function CareerLadderApp() {
   }, [editMode]);
 
   const saveData = async (newData) => {
+    const oldData = data;
     setData(newData);
     try {
-      await fetch('/api/data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newData)
+      const db = getDb();
+      const batch = writeBatch(db);
+
+      // criteria: convert [name, points, desc] → {name, points, desc} (Firestore không support nested arrays)
+      const criteriaObjects = newData.criteria.map(c => ({ name: c[0], points: c[1], desc: c[2] }));
+      batch.set(doc(db, 'criteria', 'main'), { items: criteriaObjects });
+
+      // levels — xoá level bị xoá, set lại tất cả
+      const oldLevelCodes = new Set((oldData?.levels || []).map(l => l.code));
+      const newLevelCodes = new Set(newData.levels.map(l => l.code));
+      oldLevelCodes.forEach(code => {
+        if (!newLevelCodes.has(code)) batch.delete(doc(db, 'levels', code));
       });
-      showToast('Đã lưu thay đổi vào data.json');
+      newData.levels.forEach(lvl => batch.set(doc(db, 'levels', lvl.code), lvl));
+
+      // departments — xoá dept bị xoá, set lại tất cả kèm order
+      const oldDeptIds = new Set((oldData?.departments || []).map(d => d.id));
+      const newDeptIds = new Set(newData.departments.map(d => d.id));
+      oldDeptIds.forEach(id => {
+        if (!newDeptIds.has(id)) batch.delete(doc(db, 'departments', id));
+      });
+      newData.departments.forEach((dept, idx) => batch.set(doc(db, 'departments', dept.id), { ...dept, order: idx }));
+
+      // process (array trong 1 document)
+      batch.set(doc(db, 'process', 'main'), { steps: newData.process || [] });
+
+      // matrix (array trong 1 document)
+      batch.set(doc(db, 'matrix', 'main'), { items: newData.matrix || [] });
+
+      await batch.commit();
+      showToast('Đã lưu lên Firebase ☁️');
     } catch(e) {
-      showToast('Lỗi khi lưu.');
+      console.error(e);
+      showToast('Lỗi khi lưu lên Firebase.');
     }
   };
 
@@ -88,35 +122,47 @@ export default function CareerLadderApp() {
     setTimeout(() => setToastMsg(''), 2600);
   };
 
-  const handleExport = () => {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'bigtree_data.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('Đã xuất dữ liệu.');
-  };
 
-  const handleImport = (e) => {
-    const f = e.target.files[0];
-    if (!f) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const imported = JSON.parse(reader.result);
-        if (!imported.departments || !imported.levels) throw new Error();
-        await saveData(imported);
-        setActiveDept(imported.departments[0]?.id || '');
-        showToast('Nhập dữ liệu thành công.');
-      } catch {
-        showToast('File không hợp lệ.');
-      }
-    };
-    reader.readAsText(f);
-    e.target.value = '';
-  };
+
+  if (isCheckingLogin) return null;
+
+  if (!isLoggedIn) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg)' }}>
+        <div className="card" style={{ width: 400, padding: 32, textAlign: 'center' }}>
+          <h2>Đăng nhập</h2>
+          <p style={{ color: 'var(--muted)', marginBottom: 24 }}>Vui lòng đăng nhập để truy cập hệ thống</p>
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16, textAlign: 'left' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500 }}>Tài khoản</label>
+              <input 
+                className="control" 
+                placeholder="Nhập tên tài khoản" 
+                value={loginUser} 
+                onChange={e => setLoginUser(e.target.value)} 
+                required
+                style={{ width: '100%', boxSizing: 'border-box' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500 }}>Mật khẩu</label>
+              <input 
+                className="control" 
+                type="password"
+                placeholder="Nhập mật khẩu" 
+                value={loginPass} 
+                onChange={e => setLoginPass(e.target.value)} 
+                required
+                style={{ width: '100%', boxSizing: 'border-box' }}
+              />
+            </div>
+            {loginError && <div style={{ color: 'var(--danger)', fontSize: 14 }}>{loginError}</div>}
+            <button type="submit" className="btn" style={{ marginTop: 8, width: '100%' }}>Đăng nhập</button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   if (!data) return <div style={{padding:40}}>Đang tải...</div>;
 
@@ -129,9 +175,8 @@ export default function CareerLadderApp() {
         <h1>Khung chức danh, năng lực & review nhân sự theo phòng ban</h1>
         <p>Dùng cho Ban lãnh đạo, quản lý và toàn bộ nhân sự để hiểu rõ lộ trình phát triển từ Thử việc/TTS → Nhân viên → Chuyên viên → Trưởng nhóm → Trưởng phòng.</p>
         <div className="hero-meta">
-          <span className="pill">Phiên bản: Next.js API</span>
-          <span className="pill">Lưu dữ liệu trên Server Local</span>
-          <span className="pill">Xuất/nhập JSON</span>
+          <span className="pill">Phiên bản: Next.js + Firebase</span>
+          <span className="pill">Lưu dữ liệu trên Firebase ☁️</span>
           <span className="pill">Có thể in/PDF</span>
         </div>
       </section>
@@ -152,13 +197,11 @@ export default function CareerLadderApp() {
       </section>
 
       <section className={`editbar ${editMode ? 'active' : ''}`}>
-        <span className="hint">Đang ở chế độ chỉnh sửa. Bấm "Sửa" ở từng phòng ban/vị trí. Dữ liệu sẽ lưu thẳng vào file data.json.</span>
+        <span className="hint">Đang ở chế độ chỉnh sửa. Bấm "Sửa" ở từng phòng ban/vị trí. Dữ liệu sẽ lưu lên Firebase Cloud.</span>
         <button className="btn small" onClick={() => setModal({ isOpen: true, type: 'DEPT', payload: null })}>+ Thêm phòng ban</button>
         <button className="btn small secondary" onClick={() => setModal({ isOpen: true, type: 'LEVEL', payload: null })}>+ Thêm cấp bậc</button>
         <button className="btn small secondary" onClick={() => setModal({ isOpen: true, type: 'CRITERIA', payload: null })}>Sửa tiêu chí</button>
-        <button className="btn small orange" onClick={handleExport}>Xuất JSON</button>
-        <button className="btn small secondary" onClick={() => fileInputRef.current?.click()}>Nhập JSON</button>
-        <input ref={fileInputRef} type="file" accept="application/json" style={{display:'none'}} onChange={handleImport} />
+
       </section>
 
       <div className="grid">
@@ -206,7 +249,7 @@ export default function CareerLadderApp() {
               </div>
             </div>
             <div className="process">
-              {(data.process || DEFAULT_PROCESS).map((step, idx) => (
+              {(data.process || []).map((step, idx) => (
                 <div key={idx} className="step"><b>{idx + 1}</b>
                   <h4>{step.title}</h4>
                   <p>{step.desc}</p>
@@ -230,7 +273,7 @@ export default function CareerLadderApp() {
               </div>
             </div>
             <div className="matrix">
-              {(data.matrix || DEFAULT_MATRIX).map((col, idx) => (
+              {(data.matrix || []).map((col, idx) => (
                 <div key={idx} className="mini">
                   <h4>{col.title}</h4>
                   <ul>

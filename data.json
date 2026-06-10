@@ -304,5 +304,34 @@
       "title": "Theo dõi",
       "desc": "Review sau 2–3 tháng để đảm bảo nhân sự vận hành đúng level mới."
     }
+  ],
+  "matrix": [
+    {
+      "title": "Điều kiện tối thiểu",
+      "items": [
+        "Không vi phạm kỷ luật trong kỳ gần nhất.",
+        "KPI trung bình đạt từ 80% trở lên.",
+        "Được quản lý trực tiếp đề xuất.",
+        "Có minh chứng kết quả công việc rõ ràng."
+      ]
+    },
+    {
+      "title": "Nguyên tắc tăng level",
+      "items": [
+        "Level phản ánh scope và năng lực thực tế.",
+        "Không tự động tăng theo thâm niên.",
+        "Tăng level phải đi kèm tăng trách nhiệm.",
+        "Ưu tiên người tạo ảnh hưởng tích cực tới team."
+      ]
+    },
+    {
+      "title": "Khung lương thưởng",
+      "items": [
+        "Tăng hiệu suất: 5–10%.",
+        "Tăng level: 10–25%.",
+        "Nhân sự key: theo phê duyệt BGĐ.",
+        "Thưởng theo KPI/campaign/dự án nếu có."
+      ]
+    }
   ]
 }
