@@ -9,8 +9,25 @@ function arrayToLines(a) { return (a || []).join('\n'); }
 function uid(prefix) { return prefix + '_' + Math.random().toString(36).slice(2, 8); }
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
 
+const LOGIN_STORAGE_KEY = 'bigtreeLoginCredentials';
+
+function getSavedLoginCredentials() {
+  if (typeof window === 'undefined') return { user: '', pass: '' };
+
+  const savedCredentials = window.localStorage.getItem(LOGIN_STORAGE_KEY);
+  if (!savedCredentials) return { user: '', pass: '' };
+
+  try {
+    const { user, pass } = JSON.parse(savedCredentials);
+    return { user: user || '', pass: pass || '' };
+  } catch {
+    window.localStorage.removeItem(LOGIN_STORAGE_KEY);
+    return { user: '', pass: '' };
+  }
+}
 
 export default function CareerLadderApp() {
+  const [savedLoginCredentials] = useState(getSavedLoginCredentials);
   const [data, setData] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [activeDept, setActiveDept] = useState('');
@@ -21,17 +38,21 @@ export default function CareerLadderApp() {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isCheckingLogin, setIsCheckingLogin] = useState(true);
-  const [loginUser, setLoginUser] = useState('');
-  const [loginPass, setLoginPass] = useState('');
+  const [loginUser, setLoginUser] = useState(savedLoginCredentials.user);
+  const [loginPass, setLoginPass] = useState(savedLoginCredentials.pass);
   const [loginError, setLoginError] = useState('');
 
   const [modal, setModal] = useState({ isOpen: false, type: '', payload: null });
 
   useEffect(() => {
-    if (sessionStorage.getItem('isLoggedIn') === 'true') {
-      setIsLoggedIn(true);
-    }
-    setIsCheckingLogin(false);
+    const loginCheckTimer = setTimeout(() => {
+      if (sessionStorage.getItem('isLoggedIn') === 'true') {
+        setIsLoggedIn(true);
+      }
+      setIsCheckingLogin(false);
+    }, 0);
+
+    return () => clearTimeout(loginCheckTimer);
   }, []);
 
   const handleLogin = (e) => {
@@ -39,6 +60,7 @@ export default function CareerLadderApp() {
     if (loginUser === process.env.NEXT_PUBLIC_LOGIN_USER && loginPass === process.env.NEXT_PUBLIC_LOGIN_PASS) {
       setIsLoggedIn(true);
       sessionStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem(LOGIN_STORAGE_KEY, JSON.stringify({ user: loginUser, pass: loginPass }));
       setLoginError('');
     } else {
       setLoginError('Sai tài khoản hoặc mật khẩu');
